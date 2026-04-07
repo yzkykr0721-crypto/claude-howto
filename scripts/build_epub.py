@@ -105,6 +105,7 @@ class EPUBConfig:
     # EPUB Metadata
     identifier: str = "claude-howto-guide"
     title: str = "Claude Code How-To Guide"
+    subtitle: str = "Master Claude Code in a Weekend"
     language: str = "en"
     author: str = "Claude Code Community"
 
@@ -908,7 +909,9 @@ def build_epub_async(
 
     # Add cover
     logger.info("Generating cover image...")
-    cover_data = create_cover_image(config, logger)
+    cover_data = create_cover_image(
+        config, logger, title=config.title, subtitle=config.subtitle
+    )
     book.set_cover("cover.png", cover_data)
 
     # Add CSS
@@ -1079,13 +1082,28 @@ def main() -> int:
     repo_root = repo_root.resolve()
 
     # Set language-specific paths and metadata.
-    # Each entry: (source root, default output filename, title)
-    lang_map: dict[str, tuple[Path, str, str]] = {
-        "en": (repo_root, "claude-howto-guide.epub", EPUBConfig.en_title),
-        "vi": (repo_root / "vi", "claude-howto-guide-vi.epub", EPUBConfig.vi_title),
-        "zh": (repo_root / "zh", "claude-howto-guide-zh.epub", EPUBConfig.zh_title),
+    # Each entry: (source root, default output filename, title, subtitle)
+    lang_map: dict[str, tuple[Path, str, str, str]] = {
+        "en": (
+            repo_root,
+            "claude-howto-guide.epub",
+            EPUBConfig.en_title,
+            EPUBConfig.en_subtitle,
+        ),
+        "vi": (
+            repo_root / "vi",
+            "claude-howto-guide-vi.epub",
+            EPUBConfig.vi_title,
+            EPUBConfig.vi_subtitle,
+        ),
+        "zh": (
+            repo_root / "zh",
+            "claude-howto-guide-zh.epub",
+            EPUBConfig.zh_title,
+            EPUBConfig.zh_subtitle,
+        ),
     }
-    root, default_output_name, title = lang_map[args.lang]
+    root, default_output_name, title, subtitle = lang_map[args.lang]
     output = args.output or (repo_root / default_output_name)
     language = args.lang
 
@@ -1098,6 +1116,7 @@ def main() -> int:
         output_path=output,
         language=language,
         title=title,
+        subtitle=subtitle,
         mmdc_path=args.mmdc_path,
         puppeteer_config=args.puppeteer_config,
     )
